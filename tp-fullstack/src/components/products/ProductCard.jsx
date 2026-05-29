@@ -12,7 +12,7 @@ export default function ProductCard({ product }) {
       <CardMedia
         component="img"
         height="160"
-        image={product.image || "https://via.placeholder.com/300"}
+        image={product.image_url}
         alt={product.name}
       />
 
@@ -21,15 +21,40 @@ export default function ProductCard({ product }) {
           {product.name}
         </Typography>
 
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          color="text.secondary"
+        >
           {product.description}
         </Typography>
 
-        <Typography variant="h6" sx={{ mt: 1 }}>
-          ${product.price}
+        <Typography
+          variant="h6"
+          sx={{ mt: 1 }}
+        >
+          ${Number(product.price).toLocaleString("es-AR")}
         </Typography>
 
-        <Button variant="contained" fullWidth sx={{ mt: 1 }}>
+        <Typography
+          variant="body2"
+          color={
+            product.stock > 0
+              ? "success.main"
+              : "error.main"
+          }
+          sx={{ mt: 0.5 }}
+        >
+          {product.stock > 0
+            ? `Stock disponible: ${product.stock}`
+            : "Sin stock"}
+        </Typography>
+
+        <Button
+          variant="contained"
+          fullWidth
+          sx={{ mt: 2 }}
+          disabled={product.stock <= 0}
+        >
           Comprar
         </Button>
       </CardContent>

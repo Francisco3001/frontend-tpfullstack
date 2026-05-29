@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { setToken, getToken } from "../utils/auth";
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -6,7 +8,6 @@ export default function useAuth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // LOGIN
   const login = async (values) => {
     setLoading(true);
     setError(null);
@@ -17,15 +18,16 @@ export default function useAuth() {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // 🔥 cookie
         body: JSON.stringify(values),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Error al iniciar sesión");
+        throw new Error(data.message);
       }
+
+      setToken(data.token);
 
       return data;
     } catch (err) {
@@ -36,7 +38,6 @@ export default function useAuth() {
     }
   };
 
-  // REGISTER
   const register = async (values) => {
     setLoading(true);
     setError(null);
@@ -47,15 +48,16 @@ export default function useAuth() {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify(values),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Error al registrarse");
+        throw new Error(data.message);
       }
+
+      setToken(data.token);
 
       return data;
     } catch (err) {
@@ -66,29 +68,39 @@ export default function useAuth() {
     }
   };
 
-  // 🔍 CHECK AUTH
   const checkAuth = async () => {
     try {
+      const token = getToken();
+
+      if (!token) {
+        return null;
+      }
+
       const res = await fetch(`${API_URL}/auth/profile`, {
-        method: "GET",
-        credentials: "include", // manda cookie
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!res.ok) {
         return null;
       }
 
-      const user = await res.json();
-      return user;
-    } catch (err) {
+      return await res.json();
+    } catch {
       return null;
     }
   };
 
+    const logout = () => {
+      removeToken();
+    };
+
   return {
     login,
     register,
-    checkAuth, 
+    checkAuth,
+    logout,
     loading,
     error,
   };

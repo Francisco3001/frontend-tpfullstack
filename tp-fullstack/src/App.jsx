@@ -32,8 +32,7 @@ function App() {
     loadUser();
   }, []);
 
-  // ⏳ mientras verifica sesión
-  if (isAuth === null) return <p>Cargando...</p>;
+  if (isAuth === null) return <p>Cargando...</p>; /* muestra un cargando  */
 
   return (
     <Routes>
@@ -57,7 +56,7 @@ function App() {
       <Route
         path="/auth"
         element={
-          <PublicRoute isAuth={isAuth} role={role}>
+          <PublicRoute>
             <AuthPage />
           </PublicRoute>
         }
@@ -67,7 +66,7 @@ function App() {
       <Route
         path="/products"
         element={
-          <ProtectedRoute isAuth={isAuth}>
+          <ProtectedRoute>
             <HomePage />
           </ProtectedRoute>
         }

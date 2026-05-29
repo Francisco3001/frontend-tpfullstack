@@ -36,9 +36,11 @@ export default function LoginForm() {
 
     if (!validate()) return;
 
-    const data = await login(values);
+    const response = await login(values);
 
-    if (data) {
+    localStorage.setItem("token", response.token);
+
+    if (response) {
       navigate("/products");
     }
   };

@@ -1,18 +1,10 @@
 import { Navigate } from "react-router-dom";
 
-export default function ProtectedRoute({
-  isAuth,
-  role,
-  requiredRole,
-  children,
-}) {
-  // no logueado → login
-  if (!isAuth) {
-    return <Navigate to="/auth" />;
-  }
-  // si requiere rol y no lo tiene
-  if (requiredRole && role !== requiredRole) {
-    return <Navigate to="/products" />;
+export default function ProtectedRoute({ children }) {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return <Navigate to="/auth" replace />;
   }
 
   return children;
