@@ -12,7 +12,7 @@ export default function useProducts(categoryId = null, page = 1) {
     try {
       setLoading(true);
 
-      let url = `${API_URL}/products?page=${page}&limit=10&`;
+      let url = `${API_URL}/products?page=${page}&limit=10&`; //con paginacion
       if (categoryId) {
         url += `category=${categoryId}&`;
       }

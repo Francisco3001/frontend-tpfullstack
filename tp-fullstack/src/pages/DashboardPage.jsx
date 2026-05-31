@@ -8,39 +8,17 @@ import {
   Stack,
 } from "@mui/material";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import useAdminProducts from "../hooks/useAdminProducts";
 
 export default function DashboardPage() {
-  const [products, setProducts] = useState([]);
-
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch(`${API_URL}/products`, {
-        credentials: "include",
-      });
-
-      const data = await res.json();
-      setProducts(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  const { products, fetchAllProducts, deleteProduct } = useAdminProducts();
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    fetchAllProducts();
+  }, [fetchAllProducts]);
 
   const handleDelete = async (id) => {
-    try {
-      await fetch(`${API_URL}/products/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-
-      setProducts(products.filter((p) => p.id !== id));
-    } catch (err) {
-      console.error(err);
-    }
+    await deleteProduct(id);
   };
 
   return (

@@ -56,7 +56,7 @@ export default function HomePage() {
 
   const handleCategoryChange = (event) => {
     setSelectedCategory(event.target.value);
-    setPage(1); // Reset page on category change
+    setPage(1); 
   };
 
   const handleSearchChange = (event) => {

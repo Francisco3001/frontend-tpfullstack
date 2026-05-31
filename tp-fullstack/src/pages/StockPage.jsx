@@ -7,14 +7,11 @@ import {
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
-import { getToken } from "../utils/auth";
 import useCategories from "../hooks/useCategories";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import useAdminProducts from "../hooks/useAdminProducts";
 
 export default function StockPage() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { products, loading, fetchAllProducts, updateProductStock, createProduct } = useAdminProducts();
   const [editingStock, setEditingStock] = useState({});
   const { categories, loading: catsLoading } = useCategories();
 
@@ -25,24 +22,9 @@ export default function StockPage() {
   });
   const [creating, setCreating] = useState(false);
 
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(`${API_URL}/products?limit=1000`);
-      if (res.ok) {
-        const data = await res.json();
-        setProducts(data.data || []);
-      }
-    } catch (error) {
-      console.error("Error fetching products", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    fetchAllProducts();
+  }, [fetchAllProducts]);
 
   const handleStockChange = (id, value) => {
     setEditingStock({ ...editingStock, [id]: value });
@@ -52,72 +34,26 @@ export default function StockPage() {
     const newStock = editingStock[product.id];
     if (newStock === undefined) return;
 
-    try {
-      const token = getToken();
-      const updatedProduct = {
-        ...product,
-        stock: Number(newStock)
-      };
-
-      const res = await fetch(`${API_URL}/products/${product.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(updatedProduct)
+    const success = await updateProductStock(product, newStock);
+    if (success) {
+      setEditingStock((prev) => {
+        const next = { ...prev };
+        delete next[product.id];
+        return next;
       });
-
-      if (res.ok) {
-        alert("Stock actualizado");
-        setEditingStock((prev) => {
-          const next = { ...prev };
-          delete next[product.id];
-          return next;
-        });
-        fetchProducts();
-      } else {
-        const err = await res.json();
-        alert(err.message || "Error al actualizar stock");
-      }
-    } catch (error) {
-      console.error("Error saving stock", error);
+      fetchAllProducts();
     }
   };
 
   const handleCreateProduct = async () => {
-    try {
-      setCreating(true);
-      const token = getToken();
-      const payload = {
-        ...newProduct,
-        price: Number(newProduct.price),
-        stock: Number(newProduct.stock)
-      };
-
-      const res = await fetch(`${API_URL}/products`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        setOpen(false);
-        setNewProduct({ name: "", description: "", brand: "", price: "", stock: "", image_url: "", category_id: "", is_active: true });
-        fetchProducts();
-        alert("Producto creado exitosamente");
-      } else {
-        const err = await res.json();
-        alert(err.message || "Error al crear producto");
-      }
-    } catch (error) {
-      console.error("Error creating product", error);
-    } finally {
-      setCreating(false);
+    setCreating(true);
+    const success = await createProduct(newProduct);
+    if (success) {
+      setOpen(false);
+      setNewProduct({ name: "", description: "", brand: "", price: "", stock: "", image_url: "", category_id: "", is_active: true });
+      fetchAllProducts();
     }
+    setCreating(false);
   };
 
   if (loading || catsLoading) return <Box sx={{ p: 4, textAlign: 'center' }}><CircularProgress /></Box>;

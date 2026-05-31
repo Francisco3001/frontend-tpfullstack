@@ -7,7 +7,7 @@ export default function useSession() {
   useEffect(() => {
     const token = getToken();
     setIsAuth(!!token);
-  }, []);
+  }, []); // ejecutar cuando se monta el componente
 
   return { isAuth };
 }

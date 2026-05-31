@@ -13,10 +13,9 @@ import {
   Paper,
   CircularProgress
 } from "@mui/material";
-import { getToken } from "../utils/auth";
 import useCategories from "../hooks/useCategories";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import useAdminProducts from "../hooks/useAdminProducts";
+import useBuildPc from "../hooks/useBuildPc";
 
 const COMPONENT_TYPES = [
   { key: "cpu", label: "Procesador (CPU)", required: true },
@@ -32,9 +31,8 @@ const COMPONENT_TYPES = [
 export default function BuildPcPage() {
   const navigate = useNavigate();
   const { categories, loading: catsLoading } = useCategories();
-  
-  const [products, setProducts] = useState([]);
-  const [loadingProducts, setLoadingProducts] = useState(true);
+  const { products, loading: loadingProducts, fetchAllProducts } = useAdminProducts();
+  const { addingToCart, addAllToCart } = useBuildPc();
   
   const [selections, setSelections] = useState({
     cpu: null,
@@ -47,25 +45,9 @@ export default function BuildPcPage() {
     monitor: null
   });
 
-  const [addingToCart, setAddingToCart] = useState(false);
-
   useEffect(() => {
-    const fetchAllProducts = async () => {
-      try {
-        setLoadingProducts(true);
-        // Traemos un limite alto para tener todas las opciones al armar la PC
-        const res = await fetch(`${API_URL}/products?limit=1000`);
-        const data = await res.json();
-        setProducts(data.data || []);
-      } catch (err) {
-        console.error("Error al obtener productos:", err);
-      } finally {
-        setLoadingProducts(false);
-      }
-    };
-
     fetchAllProducts();
-  }, []);
+  }, [fetchAllProducts]);
 
   // Helper para agrupar productos por la keyword de la categoria
   const getProductsForType = (typeKey) => {
@@ -91,34 +73,12 @@ export default function BuildPcPage() {
   });
 
   const handleAddToCart = async () => {
-    try {
-      setAddingToCart(true);
-      const token = getToken();
-
-      // Recolectar todos los productos seleccionados (ignorando nulls)
-      const selectedProducts = Object.values(selections).filter(p => p !== null);
-
-      for (const product of selectedProducts) {
-        await fetch(`${API_URL}/cart/items`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            product_id: product.id,
-            quantity: 1
-          })
-        });
-      }
-
-      // Volver a la página de productos
+    const selectedProducts = Object.values(selections).filter(p => p !== null);
+    
+    const success = await addAllToCart(selectedProducts);
+    
+    if (success) {
       navigate("/products");
-    } catch (err) {
-      console.error("Error al agregar al carrito:", err);
-      alert("Hubo un error al guardar los productos en el carrito.");
-    } finally {
-      setAddingToCart(false);
     }
   };
 
