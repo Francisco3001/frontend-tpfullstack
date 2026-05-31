@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { TextField, Button, Stack } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 
 export default function RegisterForm() {
+  const navigate = useNavigate();
   const [values, setValues] = useState({
     name: "",
     email: "",
@@ -36,7 +38,7 @@ export default function RegisterForm() {
     const data = await register(values);
 
     if (data) {
-      console.log("Register OK", data);
+      navigate("/products");
     }
   };
 

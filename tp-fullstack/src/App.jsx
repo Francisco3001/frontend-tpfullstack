@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/DashboardPage";
+import BuildPcPage from "./pages/BuildPcPage";
+import StockPage from "./pages/StockPage";
+import OrdersPage from "./pages/OrdersPage";
 
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import PublicRoute from "./components/routes/PublicRoute";
@@ -72,6 +75,26 @@ function App() {
         }
       />
 
+      {/* BUILD PC */}
+      <Route
+        path="/build-pc"
+        element={
+          <ProtectedRoute>
+            <BuildPcPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ORDERS */}
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute>
+            <OrdersPage />
+          </ProtectedRoute>
+        }
+      />
+
       {/* DASHBOARD */}
       <Route
         path="/dashboard"
@@ -82,6 +105,20 @@ function App() {
             requiredRole="admin"
           >
             <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* STOCK */}
+      <Route
+        path="/stock"
+        element={
+          <ProtectedRoute
+            isAuth={isAuth}
+            role={role}
+            requiredRole="admin"
+          >
+            <StockPage />
           </ProtectedRoute>
         }
       />

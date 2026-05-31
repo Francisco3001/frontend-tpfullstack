@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { setToken, getToken } from "../utils/auth";
+import { setToken, getToken, removeToken } from "../utils/auth";
 
 
 const API_URL = import.meta.env.VITE_API_URL;
